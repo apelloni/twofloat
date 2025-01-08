@@ -1,7 +1,7 @@
 use crate::TwoFloat;
+use core::iter::Sum;
+use core::ops::Add;
 use num_traits::Zero;
-use std::iter::Sum;
-use std::ops::Add;
 
 impl<T> Sum<T> for TwoFloat
 where
@@ -16,22 +16,40 @@ where
 }
 
 #[cfg(test)]
-#[test]
-fn iter_sum_1() {
-    //let v: Vec<TwoFloat> = (1..=10).map(|x| Into::<TwoFloat>::into(x as f64)).collect();
-    let v: Vec<f64> = (1..=100).map(|x| x.into()).collect();
-    let res: TwoFloat = 5050.0.into();
-    let v_sum: TwoFloat = v.iter().sum();
+mod tests {
+    use super::*;
 
-    assert_eq!(v_sum, res);
-}
+    #[cfg(feature = "std")]
+    #[test]
+    fn iter_sum_vec_1() {
+        let v: Vec<f64> = (1..=100).map(|x| x.into()).collect();
+        let v_sum: TwoFloat = v.iter().sum();
+        let res: TwoFloat = 5050.0.into();
 
-#[cfg(test)]
-#[test]
-fn iter_sum_2() {
-    //let v: Vec<TwoFloat> = (1..=10).map(|x| Into::<TwoFloat>::into(x as f64)).collect();
-    let v: Vec<f64> = (1..=108).map(|x| 2f64.powi(-x)).collect();
-    let one: TwoFloat = 1.0.into();
-    let v_sum: TwoFloat = v.iter().sum();
-    assert!(v_sum - one < 1e-32);
+        assert_eq!(v_sum, res);
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn iter_sum_vec_2() {
+        let v: Vec<f64> = (1..=108).map(|x| 2f64.powi(-x)).collect();
+        let v_sum: TwoFloat = v.iter().sum();
+        let one: TwoFloat = 1.0.into();
+        assert!(v_sum - one < 1e-32);
+    }
+
+    #[test]
+    fn iter_sum_1() {
+        let sum: TwoFloat = (1..=100).map(|x| x as f64).sum();
+        let res: TwoFloat = 5050.0.into();
+
+        assert_eq!(sum, res);
+    }
+
+    #[test]
+    fn iter_sum_2() {
+        let sum: TwoFloat = (1..=108).map(|x| 2f64.powi(-x)).sum();
+        let one: TwoFloat = 1.0.into();
+        assert!(sum - one < 1e-32);
+    }
 }
