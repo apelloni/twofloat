@@ -24,117 +24,6 @@ const LN_FRAC_3_2: TwoFloat = TwoFloat {
 const EXP_UPPER_LIMIT: f64 = hexf64!("0x1.62e42fefa39efp9"); // ln(0x1.0p1024)
 const EXP_LOWER_LIMIT: f64 = hexf64!("-0x1.74385446d71c3p9"); // ln(0x1.0p-1074)
 
-const EXP_M1_COEFFS: [TwoFloat; 12] = [
-    TwoFloat {
-        hi: hexf64!("0x1.0p-1"),
-        lo: hexf64!("0x1.bd730351a9755p-56"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.5555555555553p-3"),
-        lo: hexf64!("-0x1.7597a71b9af89p-57"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.55555555553f5p-5"),
-        lo: hexf64!("-0x1.ccd976a7f775cp-59"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.11111111115c4p-7"),
-        lo: hexf64!("0x1.342b20ac16f97p-61"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.6c16c16c6709ep-10"),
-        lo: hexf64!("-0x1.3ce71843eff0cp-64"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.a01a01a0b696cp-13"),
-        lo: hexf64!("0x1.d41bdeddcef57p-71"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.a01a00aeb2858p-16"),
-        lo: hexf64!("0x1.7b3bc0a8a9fafp-70"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.71de32b050a9dp-19"),
-        lo: hexf64!("-0x1.9be0c6cec6271p-77"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.27e62dc06cd67p-22"),
-        lo: hexf64!("-0x1.41f2a2a0cba43p-77"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.ae852d1420eefp-26"),
-        lo: hexf64!("-0x1.669f123719ab2p-81"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.1e22aadda1973p-29"),
-        lo: hexf64!("-0x1.83b25ef3d0968p-85"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.36ab6f77c95d8p-33"),
-        lo: hexf64!("0x1.c16dc2dc455f1p-89"),
-    },
-];
-
-// Coefficients for polynomial approximation of 2^x on [-0.5, 0.5]
-const EXP2_COEFFS: [TwoFloat; 14] = [
-    TwoFloat {
-        hi: hexf64!("0x1.62e42fefa39efp-1"),
-        lo: hexf64!("0x1.abcab7ae0b156p-56"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.ebfbdff82c58fp-3"),
-        lo: hexf64!("-0x1.5e431ae1ed823p-57"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.c6b08d704a0cp-5"),
-        lo: hexf64!("-0x1.d70e953766cd4p-59"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.3b2ab6fba4e77p-7"),
-        lo: hexf64!("0x1.494f1fd2611efp-62"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.5d87fe78a6736p-10"),
-        lo: hexf64!("0x1.1f321edc1a3bbp-64"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.430912f86c78cp-13"),
-        lo: hexf64!("0x1.bfc77bb3c115bp-70"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.ffcbfc5887f1ap-17"),
-        lo: hexf64!("-0x1.3d15db905a7ddp-71"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.62c0223a5a6dbp-20"),
-        lo: hexf64!("0x1.f538d80a3aae8p-75"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.b5253d488bccap-24"),
-        lo: hexf64!("-0x1.2ec9fd0f44ecfp-80"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.e4cf5169221d1p-28"),
-        lo: hexf64!("-0x1.cc6cb479cd318p-83"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.e8ca77bf9238ep-32"),
-        lo: hexf64!("0x1.c257a7e383648p-86"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.c3bd1cd9ae17dp-36"),
-        lo: hexf64!("-0x1.45f6fa8d3cb45p-91"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.8235651fc7049p-40"),
-        lo: hexf64!("0x1.98bc0cb4f5bc4p-94"),
-    },
-    TwoFloat {
-        hi: hexf64!("0x1.31efcab273719p-44"),
-        lo: hexf64!("0x1.c814aa232482ap-98"),
-    },
-];
-
 const FRAC_FACT: [TwoFloat; 21] = [
     TwoFloat {
         // 1/0!
@@ -270,7 +159,7 @@ impl TwoFloat {
     /// let b = a.exp();
     /// let e2 = twofloat::consts::E * twofloat::consts::E;
     ///
-    /// assert!((b - e2).abs() / e2 < 1e-16);
+    /// assert!((b - e2).abs() / e2 < 1e-30);
     /// ```
     pub fn exp(self) -> Self {
         if self.hi <= EXP_LOWER_LIMIT {
@@ -290,7 +179,7 @@ impl TwoFloat {
             // We can increase the value of `n` making the convergence of the
             // remaining exponential function faster
 
-            let k = libm::trunc((FRAC_1_LN_2 * self).hi + 0.5);
+            let k = libm::trunc((FRAC_1_LN_2 * self).hi - 0.5);
             // n = 512 is chosen;
             let r = (self - LN_2 * k) / 512.0;
             // TODO: Redefine EPSILON ?
@@ -344,22 +233,37 @@ impl TwoFloat {
     ///
     /// ```
     /// # use twofloat::TwoFloat;
-    /// let a = TwoFloat::from(0.05);
-    /// let b = a.exp_m1();
-    /// let c = 0.05f64.exp_m1();
+    /// # use core::{convert::TryFrom};
+    /// let a = TwoFloat::from(2f64.powi(-20));
     ///
-    /// assert!((b - c).abs() < 1e-16);
+    /// let b = a.exp_m1();
+    /// let c = a.exp() - 1.0;
+    ///
+    /// // Exact Result
+    /// // res = 9.5367477115374544678824955687428e-7;
+    /// let res = TwoFloat::try_from((9.5367477115374552e-07, -7.0551613072428143e-23)).unwrap();
+    ///
+    /// assert!(((b-res)/res) == 0.0);
+    /// assert!(((c-res)/res).abs() < 1e-22);
     /// ```
     pub fn exp_m1(self) -> Self {
         if self < -LN_2 || self > LN_FRAC_3_2 {
             self.exp() - 1.0
         } else {
-            let r = polynomial!(self, 1.0, EXP_M1_COEFFS);
-            self * r
+            let x = self.abs();
+            let r = polynomial!(x, 1.0, FRAC_FACT[2..15]);
+            if self < 0.0 {
+                self * r * self.exp()
+            } else {
+                self * r
+            }
         }
     }
 
     /// Returns `2^(self)`.
+    ///
+    /// where self = k + r * n,  k > 0 and n = 2^9 = 512
+    /// The taylor series for the small value of r converges very fast
     ///
     /// # Examples
     ///
@@ -367,8 +271,12 @@ impl TwoFloat {
     /// # use twofloat::TwoFloat;
     /// let a = TwoFloat::from(0.5).exp2();
     /// let b = TwoFloat::from(2).sqrt();
+    /// let c = (TwoFloat::from(0.5)*twofloat::consts::LN_2).exp();
+    /// let res = twofloat::consts::SQRT_2;
     ///
-    /// assert!((a - b).abs() < 1e-15);
+    /// assert!((a - res).abs() < 1e-29);
+    /// assert!((b - res).abs() < 1e-31);
+    /// assert!((c - res).abs() < 1e-30);
     /// ```
     pub fn exp2(self) -> Self {
         if self < -1074.0 {
@@ -380,8 +288,22 @@ impl TwoFloat {
             }
         } else {
             let k = libm::round(self.hi);
-            let r = self - k;
-            let r1 = polynomial!(r, 1.0, EXP2_COEFFS);
+            let r = (self - k) * LN_2 / 512.0;
+            //let x = self * LN_2;
+            let mut r1 = polynomial!(r, FRAC_FACT[..12]);
+
+            // Recover rescaling of r
+            r1 = r1 * r1; // 2^(r * 2)
+            r1 = r1 * r1; // 2^(r * 4)
+            r1 = r1 * r1; // 2^(r * 8)
+            r1 = r1 * r1; // 2^(r * 16)
+            r1 = r1 * r1; // 2^(r * 32)
+            r1 = r1 * r1; // 2^(r * 64)
+            r1 = r1 * r1; // 2^(r * 128)
+            r1 = r1 * r1; // 2^(r * 256)
+            r1 = r1 * r1; // 2^(r * 512)
+
+            //let r1 = polynomial!(r, 1.0, EXP2_COEFFS);
             if k == 0.0 {
                 r1
             } else {
@@ -402,7 +324,7 @@ impl TwoFloat {
     ///
     /// ```
     /// let a = twofloat::consts::E.ln();
-    /// assert!((a - 1.0).abs() < 1e-11);
+    /// assert!((a - 1.0).abs() < 1e-29);
     /// ```
     pub fn ln(self) -> Self {
         if self == 1.0 {
@@ -419,17 +341,16 @@ impl TwoFloat {
 
     /// Returns the natural logarithm of `1 + self`.
     ///
-    /// Uses Newton–Raphson iteration which depends on the `expm1` function,
-    /// so may not be fully accurate to the full precision of a `TwoFloat`.
+    /// Uses Newton–Raphson iteration which depends on the `expm1` function
     ///
     /// # Example
     ///
     /// ```
     /// # use twofloat::TwoFloat;
-    /// let a = TwoFloat::from(0.1);
+    /// let a = TwoFloat::from(-0.5);
     /// let b = a.ln_1p();
-    /// let c = 0.1f64.ln_1p();
-    /// assert!((b - c).abs() < 1e-10);
+    /// let c = -twofloat::consts::LN_2;//0.1f64.ln_1p();
+    /// assert!((b - c).abs() < 1e-29);
     /// ```
     pub fn ln_1p(self) -> Self {
         if self == 0.0 {
@@ -472,7 +393,7 @@ impl TwoFloat {
     /// # use twofloat::TwoFloat;
     /// let a = TwoFloat::from(64.0).log2();
     ///
-    /// assert!((a - 6.0).abs() < 1e-12, "{}", a);
+    /// assert!(a - 6.0 == 0.0, "{}", a);
     /// ```
     pub fn log2(self) -> Self {
         if self == 1.0 {
@@ -496,8 +417,7 @@ impl TwoFloat {
     /// ```
     /// # use twofloat::TwoFloat;
     /// let a = TwoFloat::from(100.0).log10();
-    ///
-    /// assert!((a - 2.0).abs() < 1e-12);
+    /// assert!((a - 2.0).abs() < 1e-30, "{}", a);
     /// ```
     pub fn log10(self) -> Self {
         self.ln() / LN_10
