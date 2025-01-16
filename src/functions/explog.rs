@@ -899,7 +899,7 @@ impl TwoFloat {
         // digits, so no matter what strategy we choose here, the convergence
         // needs to go out to x = log(1.5) = 0.22. We have it work for until a
         // quarter, because that's a nice round power of two.
-        assert!(self.hi().abs() <= 0.25);
+        assert!(self.hi().abs() <= 0.25, "found: {} = {:?}", self, self);
 
         // The idea is to use the identity
         //
